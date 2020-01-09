@@ -1,0 +1,68 @@
+Dominic Loftus
+204910863
+
+2/
+I created a new branch of v3.0 called quote using command
+git checkout v3.0 -b quote
+which output
+M	src/cmp.c
+M	src/diff.c
+M	src/diff3.c
+M	src/dir.c
+M	src/sdiff.c
+M	src/side.c
+M	src/util.c
+Switched to a new branch 'quote'
+
+3/
+I then added my patch using the command
+patch -p1 < quote-3.0-patch.txt
+which patched the above files
+
+5/
+I then composed the change log with
+emacs ChangeLog
+C-x 4 a
+and then listing each .c file changed with the description
+: Replaced grave accent with apostrophe
+
+6/
+I then commited the changes with commands
+git add .
+git commit -F ChangeLog
+with the change log just created
+
+7/
+I then generated the patch using
+git format-patch -1 --stdout > formatted-patch.txt
+
+8/
+Partner: Luke Jung
+UID: 904982644
+Next was to verify that the patch would work on my partner's server
+First I gave him a copy of my formatted patch. He then created a new v3.0
+branch called partner. He also needed to apply the gets patch used in the
+lab. Then he used the command
+git am < formatted-patch.txt
+to apply the patch and then built the program with commands
+./bootstrap
+./configure
+make
+
+when he tried to use make check it didn't work, however on piazza there was
+a post saying that as long as ./src/diff . - output the correct error
+message that it was fine. He ran the command
+./src/diff . -
+and it output
+diff: cannot compare '-' to a directory
+
+
+9/
+I then used the command
+make distdir
+in the partner branch and then cd'd into the resulting directory and opened
+the change log file. The file contained the change log writted by my partner
+above the rest of the previous change log.
+
+
+

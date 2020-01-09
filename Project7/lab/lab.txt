@@ -1,0 +1,290 @@
+Dominic Loftus
+Assignment 7
+
+
+1/
+First I made my trivial program, trivial.c, to print cos(sqrt(3.0)).
+
+#include <stdio.h>
+#include <math.h>
+
+int main(void){
+  double x = cos(sqrt(3.0));
+  printf("%.17g\n", x);
+}
+
+Compiled the program with command
+gcc trivial.c -o trivial
+
+and run with command
+./trivial
+
+which output
+-0.16055653857469052
+
+
+2/
+I then checked to see what dynamic libraries my program used with command
+ldd trivial
+
+which output
+linux-vdso.so.1 =>  (0x00007fffa1575000)
+	libc.so.6 => /lib64/libc.so.6 (0x00007fb2135f3000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007fb2139c0000)
+
+which are the dynamic libraries used in the program
+
+3/
+To see what system calls the program makes, I used command
+strace ./trivial
+
+which output
+execve("./trivial", ["./trivial"], [/* 35 vars */]) = 0
+brk(NULL)                               = 0x2256000
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f59d7820000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+open("/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+fstat(3, {st_mode=S_IFREG|0644, st_size=165806, ...}) = 0
+mmap(NULL, 165806, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f59d77f7000
+close(3)                                = 0
+open("/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0\340$\2\0\0\0\0\0"..., 832) = 832
+fstat(3, {st_mode=S_IFREG|0755, st_size=2151832, ...}) = 0
+mmap(NULL, 3981792, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f59d7233000
+mprotect(0x7f59d73f6000, 2093056, PROT_NONE) = 0
+mmap(0x7f59d75f5000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1c2000) = 0x7f59d75f5000
+mmap(0x7f59d75fb000, 16864, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f59d75fb000
+close(3)                                = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f59d77f6000
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f59d77f4000
+arch_prctl(ARCH_SET_FS, 0x7f59d77f4740) = 0
+mprotect(0x7f59d75f5000, 16384, PROT_READ) = 0
+mprotect(0x600000, 4096, PROT_READ)     = 0
+mprotect(0x7f59d7821000, 4096, PROT_READ) = 0
+munmap(0x7f59d77f7000, 165806)          = 0
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(136, 15), ...}) = 0
+mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f59d781f000
+write(1, "-0.16055653857469052", 20-0.16055653857469052)    = 20
+exit_group(0)                           = ?
++++ exited with 0 +++
+
+The functions that have to do with dynamic linking are
+mmap will establish a map between address of the library needed to load and
+the file itself
+access/open check if the library can be accessed and makes the library
+accessible
+fstat returns a struct of relevent statuses about the library
+mprotect sets the proper protection status for the library
+munmap will unmap the libraries
+close closes the opened libraries
+
+4/
+Run the command
+ls /usr/bin | awk 'NR%101==204910863%101'
+
+which output
+akonadi2xml
+berkeley_db47_svc
+chgrp
+cube-config-backend
+diff3
+eu-ar
+gcc-ranlib
+gnatxref
+gtester
+hugeedit
+itweb-settings
+kfontview
+ldd
+lslogins
+mockchain
+nl-classid-lookup
+orc-bugreport
+pamtojpeg2k
+pcdovtoppm
+pinentry
+pnmquant
+ppmforge
+pwmake
+rlog
+sctp_test
+spam
+taskset
+umask
+wrestool
+xsetwacom
+
+
+5/
+I then ran the command
+ldd /usr/bin/(name)
+for each above listed result replacing (name)
+
+Most ran fine however the following gave me not a dynamic executable errors
+because the executables did not use any dynamic linking
+
+/usr/bin/cube-config-backend
+/usr/bin/itweb-settings
+/usr/bin/ldd
+/usr/bin/mockchain
+/usr/bin/pcdovtoppm
+/usr/bin/pinentry
+/usr/bin/pnmquant
+/usr/bin/rlog
+/usr/bin/umask
+
+
+6/
+I then wrote the script commands.sh
+
+#!/bin/bash                                                                               
+
+arr=("/usr/bin/akonadi2xml"
+"/usr/bin/berkeley_db47_svc"
+"/usr/bin/chgrp"
+"/usr/bin/cube-config-backend"
+"/usr/bin/diff3"
+"/usr/bin/eu-ar"
+"/usr/bin/gcc-ranlib"
+"/usr/bin/gnatxref"
+"/usr/bin/gtester"
+"/usr/bin/hugeedit"
+"/usr/bin/itweb-settings"
+"/usr/bin/kfontview"
+"/usr/bin/ldd"
+"/usr/bin/lslogins"
+"/usr/bin/mockchain"
+"/usr/bin/nl-classid-lookup"
+"/usr/bin/orc-bugreport"
+"/usr/bin/pamtojpeg2k"
+"/usr/bin/pcdovtoppm"
+"/usr/bin/pinentry"
+"/usr/bin/pnmquant"
+"/usr/bin/ppmforge"
+"/usr/bin/pwmake"
+"/usr/bin/rlog"
+"/usr/bin/sctp_test"
+"/usr/bin/spam"
+"/usr/bin/taskset"
+"/usr/bin/umask"
+"/usr/bin/wrestool"
+"/usr/bin/xsetwacom")
+
+for x in "${arr[@]}"
+do
+    ldd $x
+done
+
+
+and then ran the command
+
+bash commands.sh | grep ".so" | sed 's/(.*)//' | sort -u
+
+which gave the following
+
+	/lib64/ld-linux-x86-64.so.2 
+	libacl.so.1 => /lib64/libacl.so.1 
+	libakonadi-kde.so.4 => /lib64/libakonadi-kde.so.4 
+	libakonadiprotocolinternals.so.1 => /lib64/libakonadiprotocolinternals.so.1 
+	libakonadi-xml.so.4 => /lib64/libakonadi-xml.so.4 
+	libattica.so.0.4 => /lib64/libattica.so.0.4 
+	libattr.so.1 => /lib64/libattr.so.1 
+	libbz2.so.1 => /lib64/libbz2.so.1 
+	libcap.so.2 => /lib64/libcap.so.2 
+	libcom_err.so.2 => /lib64/libcom_err.so.2 
+	libcrack.so.2 => /lib64/libcrack.so.2 
+	libcrypto.so.10 => /lib64/libcrypto.so.10 
+	libc.so.6 => /lib64/libc.so.6 
+	libc.so.6 => /usr/lib64/libc.so.6 
+	libdb-4.7.so => /usr/lib64/libdb-4.7.so 
+	libdbus-1.so.3 => /lib64/libdbus-1.so.3 
+	libdbusmenu-qt.so.2 => /lib64/libdbusmenu-qt.so.2 
+	libdl.so.2 => /lib64/libdl.so.2 
+	libdw.so.1 => /lib64/libdw.so.1 
+	libelf.so.1 => /lib64/libelf.so.1 
+	libexpat.so.1 => /lib64/libexpat.so.1 
+	libfam.so.0 => /lib64/libfam.so.0 
+	libffi.so.6 => /lib64/libffi.so.6 
+	libfontconfig.so.1 => /lib64/libfontconfig.so.1 
+	libfreetype.so.6 => /lib64/libfreetype.so.6 
+	libgcc_s.so.1 => /lib64/libgcc_s.so.1 
+	libgcrypt.so.11 => /lib64/libgcrypt.so.11 
+	libglib-2.0.so.0 => /lib64/libglib-2.0.so.0 
+	libgobject-2.0.so.0 => /lib64/libgobject-2.0.so.0 
+	libgpg-error.so.0 => /lib64/libgpg-error.so.0 
+	libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 
+	libgthread-2.0.so.0 => /lib64/libgthread-2.0.so.0 
+	libICE.so.6 => /lib64/libICE.so.6 
+	libjasper.so.1 => /lib64/libjasper.so.1 
+	libjpeg.so.62 => /lib64/libjpeg.so.62 
+	libk5crypto.so.3 => /lib64/libk5crypto.so.3 
+	libkdecore.so.5 => /lib64/libkdecore.so.5 
+	libkdeui.so.5 => /lib64/libkdeui.so.5 
+	libkeyutils.so.1 => /lib64/libkeyutils.so.1 
+	libkfontinst.so.4 => /lib64/libkfontinst.so.4 
+	libkfontinstui.so.4 => /lib64/libkfontinstui.so.4 
+	libkio.so.5 => /lib64/libkio.so.5 
+	libkparts.so.4 => /lib64/libkparts.so.4 
+	libkrb5.so.3 => /lib64/libkrb5.so.3 
+	libkrb5support.so.0 => /lib64/libkrb5support.so.0 
+	liblz4.so.1 => /lib64/liblz4.so.1 
+	liblzma.so.5 => /lib64/liblzma.so.5 
+	libm.so.6 => /lib64/libm.so.6 
+	libnepomukquery.so.4 => /lib64/libnepomukquery.so.4 
+	libnepomuk.so.4 => /lib64/libnepomuk.so.4 
+	libnepomukutils.so.4 => /lib64/libnepomukutils.so.4 
+	libnetpbm.so.11 => /lib64/libnetpbm.so.11 
+	libnl-3.so.200 => /lib64/libnl-3.so.200 
+	libnl-cli-3.so.200 => /lib64/libnl-cli-3.so.200 
+	libnl-genl-3.so.200 => /lib64/libnl-genl-3.so.200 
+	libnl-idiag-3.so.200 => /lib64/libnl-idiag-3.so.200 
+	libnl-nf-3.so.200 => /lib64/libnl-nf-3.so.200 
+	libnl-route-3.so.200 => /lib64/libnl-route-3.so.200 
+	libnsl.so.1 => /lib64/libnsl.so.1 
+	liborc-0.4.so.0 => /lib64/liborc-0.4.so.0 
+	liborc-test-0.4.so.0 => /lib64/liborc-test-0.4.so.0 
+	libosp.so.5 => /lib64/libosp.so.5 
+	libpcre.so.1 => /lib64/libpcre.so.1 
+	libpng15.so.15 => /lib64/libpng15.so.15 
+	libpthread.so.0 => /lib64/libpthread.so.0 
+	libpthread.so.0 => /usr/lib64/libpthread.so.0 
+	libpwquality.so.1 => /lib64/libpwquality.so.1 
+	libqca.so.2 => /lib64/libqca.so.2 
+	libQtCore.so.4 => /lib64/libQtCore.so.4 
+	libQtDBus.so.4 => /lib64/libQtDBus.so.4 
+	libQtGui.so.4 => /lib64/libQtGui.so.4 
+	libQtNetwork.so.4 => /lib64/libQtNetwork.so.4 
+	libQtSql.so.4 => /lib64/libQtSql.so.4 
+	libQtSvg.so.4 => /lib64/libQtSvg.so.4 
+	libQtXml.so.4 => /lib64/libQtXml.so.4 
+	libresolv.so.2 => /lib64/libresolv.so.2 
+	librt.so.1 => /lib64/librt.so.1 
+	libsctp.so.1 => /lib64/libsctp.so.1 
+	libselinux.so.1 => /lib64/libselinux.so.1 
+	libSM.so.6 => /lib64/libSM.so.6 
+	libsolid.so.4 => /lib64/libsolid.so.4 
+	libsopranoclient.so.1 => /lib64/libsopranoclient.so.1 
+	libsoprano.so.4 => /lib64/libsoprano.so.4 
+	libssl.so.10 => /lib64/libssl.so.10 
+	libstdc++.so.6 => /lib64/libstdc++.so.6 
+	libstreamanalyzer.so.0 => /lib64/libstreamanalyzer.so.0 
+	libstreams.so.0 => /lib64/libstreams.so.0 
+	libsystemd.so.0 => /lib64/libsystemd.so.0 
+	libudev.so.1 => /lib64/libudev.so.1 
+	libuuid.so.1 => /lib64/libuuid.so.1 
+	libX11.so.6 => /lib64/libX11.so.6 
+	libXau.so.6 => /lib64/libXau.so.6 
+	libxcb.so.1 => /lib64/libxcb.so.1 
+	libXcursor.so.1 => /lib64/libXcursor.so.1 
+	libXext.so.6 => /lib64/libXext.so.6 
+	libXfixes.so.3 => /lib64/libXfixes.so.3 
+	libXft.so.2 => /lib64/libXft.so.2 
+	libXinerama.so.1 => /lib64/libXinerama.so.1 
+	libXi.so.6 => /lib64/libXi.so.6 
+	libxml2.so.2 => /lib64/libxml2.so.2 
+	libXpm.so.4 => /lib64/libXpm.so.4 
+	libXrandr.so.2 => /lib64/libXrandr.so.2 
+	libXrender.so.1 => /lib64/libXrender.so.1 
+	libXtst.so.6 => /lib64/libXtst.so.6 
+	libz.so.1 => /lib64/libz.so.1 
+	linux-vdso.so.1 =>  

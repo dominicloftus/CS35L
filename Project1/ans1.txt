@@ -1,0 +1,29 @@
+1.) You can use the shell command "man -k <string>" to search manual pages for a specific word
+
+2.) mv and sh are located in /usr/bin. i used the command which (mv/sh) which gave me their paths.
+
+3.) ar is used to modify archived files. pr is used to convert text files for printing. tr is used to translate or delete characters. I used find /usr/bin -executable -name "?r" to find the executables then man (ar/pr/tr) to find what they do.
+
+4.) when /usr/bin/emacs is used, this symbolic link actually executes /etc/alternatives/emacs. I found this using the command readlink /usr/bin/emacs
+
+5.) the version of the /usr/bin/gcc program is 4.8.5, but the plain gcc program is 8.2.0. this is because the plan version retrieves the most recent version however, the version stored in the bin is an older program.
+
+6.) the u+sx allows the user to execute and also sets their id upon execution, the o-w removes the ability of others to write to the file
+
+7.) I used the command find /usr/local/cs -type d -mtime -28 to find all files opened in that directory in the past 4 weeks. I used man find to find the directory type and the notation for finding their last edit time in a range
+
+8.) I used the command which find to find the path /usr/bin. I then used the command find /usr/bin -type l to find symbolic link it the directory and found 603 symbolic links that were in /usr/bin
+
+9.) I used cd /usr/lib64 to get to the directory and then i used ls -lt to sort the directory by last modification time and display the last modification time. The oldest file in the directory was librom1394.so.0.3.0 and was last edited Dec 28 2013. I used man ls to find the right flag to sort by age.
+
+10.) locale gets its data from the locale archive in directory /usr/lib/locale/locale-archive. I used man locale to find the path
+
+11.) The commands with downcase in their name are downcase-dwim, downcase-region, and downcase-word. I first used C-h ? to find the command C-h a downcase which brought me the correct commands.
+
+12.) The command C-M-r is isearch-backward-regexp searches for a string starting at the end of the buffer and working back. C-M-v is used to scroll through different windows in emacs. to find them I used C-h c C-M-r to find the command name then C-h F isearch-backward-regexp for the backward search and C-h c C-M-v to find command then C-h F scroll-other-window for info on that command
+
+13.) It is used to quit out of any current command waiting for input. It will cancel either a partially typed command or stop one that is still running. I found this by using C-h x C-g to find the command name and then used C-h F keyboard-quit to find information on C-g.
+
+14.) The yank function pastes whatever was last "killed" or cut into the buffer, you can use C-y to do it. I used C-h F yank to find the information
+
+15.) I noticed that ls -l noted a total of 346012 and emacs noted 346100. Other than that I noticed that the parent and current directories were listed on the emacs list that I don't beliecer were listed on the ls -l. To find these I used cd /usr/bin then ls -l and in emacs used C-h a dired to find the dired command then used C-x d (deleted promped directory) /usr/bin and compared the two results.

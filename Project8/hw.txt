@@ -1,0 +1,30 @@
+Dominic Loftus
+204910863
+
+1/
+The network that we established would still be secure because the data
+that I was transfering was encrypted using my partner's public key. So
+even if they were able to monitor these bytes, they would only see the
+encrypted data and because only my partner had the private key that
+is needed to interpret the data and the private key is never sent
+across any servers.
+
+If the other team were able to monitor our keystrokes, then our
+network would still be secure because the keystrokes alone are not enough
+to recreate the private key to decode our data.
+
+If they had access to the physical usb device however then they would
+be able to observe all of the data that we are passing over the network
+because they would have access to the files that are stored on the device
+containing the private key.
+
+2/
+This command doesn't truly verify that I was the one who created the file
+because it only checks to ensure that the integrity of the signiture is
+intact. If someone else was able to intercept and encode it with a
+different public key and regenerate the signiture for that key then
+gpg --verify would still work.
+
+One way to fix this is to publish the public key so that when the data
+is recieved, you are able to check the key recieved against the one that
+it's supposed to be and verify it this way.

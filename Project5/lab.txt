@@ -1,0 +1,115 @@
+First I wrote the two programs tr2b and tr2u
+
+Then I wrote a program to print out 5000000 of the letter 'a' and wrote it
+to the file lets.txt
+
+In order to trace system calls copying to another file I used
+
+strace -c ./tr2b a z < lets.txt > lets
+which gave output
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 67.29    0.002273           4       611           write
+ 32.71    0.001105           2       613           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0         9           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         4           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.003378                  1253         1 total
+
+Doing the same with unbuffered input with command
+
+strace ./tr2u a z < lets.txt > lets
+yeilded the result
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 57.02   49.968928          10   5000000           write
+ 42.98   37.670831           8   5000002           read
+  0.00    0.000089          13         7           mmap
+  0.00    0.000061          15         4           mprotect
+  0.00    0.000038          19         2           open
+  0.00    0.000027           7         4           brk
+  0.00    0.000025          25         1         1 access
+  0.00    0.000025          25         1           execve
+  0.00    0.000020          20         1           munmap
+  0.00    0.000016           8         2           fstat
+  0.00    0.000012           6         2           close
+  0.00    0.000007           7         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00   87.640079              10000027         1 total
+
+I then used the command to write to terminal
+
+strace -c ./tr2b a z < lets.txt
+which produced the output
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 89.29    0.029950           6      4883           write
+ 10.71    0.003591           6       613           read
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         4           fstat
+  0.00    0.000000           0         9           mmap
+  0.00    0.000000           0         4           mprotect
+  0.00    0.000000           0         1           munmap
+  0.00    0.000000           0         4           brk
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+  0.00    0.000000           0         1           arch_prctl
+------ ----------- ----------- --------- --------- ----------------
+100.00    0.033541                  5525         1 total
+
+Next was to do the same with the unbuffered version
+
+strace -c ./tr2u a z < lets.txt
+which gave the following
+
+% time     seconds  usecs/call     calls    errors syscall
+------ ----------- ----------- --------- --------- ----------------
+ 57.14   50.451869          10   5000000           write
+ 42.86   37.845600           8   5000002           read
+  0.00    0.000041          10         4           mprotect
+  0.00    0.000023          23         1           munmap
+  0.00    0.000022           6         4           brk
+  0.00    0.000009           1         7           mmap
+  0.00    0.000007           7         1           arch_prctl
+  0.00    0.000000           0         2           open
+  0.00    0.000000           0         2           close
+  0.00    0.000000           0         2           fstat
+  0.00    0.000000           0         1         1 access
+  0.00    0.000000           0         1           execve
+------ ----------- ----------- --------- --------- ----------------
+100.00   88.297571              10000027         1 total
+
+The buffered version is obviously much more efficient with only 5525
+system calls compared to 10000027
+
+
+Next to compare the runtimes I used the command
+
+time ./tr2b a z < lets.txt
+which gave
+
+real	0m0.302s
+user	0m0.237s
+sys	0m0.022s
+
+and
+time ./tr2u a z < lets.txt
+which produced
+
+real	0m17.489s
+user	0m1.856s
+sys	0m15.548s
+
+Clearly buffered input is faster in all respects for a file this size

@@ -1,0 +1,43 @@
+
+First i did export LC_ALL='C' to change the locale to output LC_CTYPE="C".
+
+I used touch words.txt then cp /usr/share/dict/words ~/Project2_35L/words.txt
+to copy the dictionary file then used sort words.txt. This created a text file
+with a sorted list of dictionary words.
+
+running command tr -c 'A-Za-z' '[\n*]' prints a maximum one word per line with
+multiple extra new lines between some words.
+
+running tr -cs 'A-Za-z' '[\n*]' prints one word per line with no extra new
+lines between words.
+
+running tr -cs 'A-Za-z' '[\n*]' | sort prints each word on one line in
+alphabetical order
+
+running tr -cs 'A-Za-z' '[\n*]' | sort -u does the same as above with no
+repeats
+
+running tr -cs 'A-Za-z' '[\n*]' | sort -u | comm - words.txt prints 3
+collumns, first with words unique to the web page, second with words unique to
+words.txt and third with words in both.
+
+running tr -cs 'A-Za-z' '[\n*]' | sort -u | comm -23 - words.txt prints only
+the first collumn, words unique to the webpage, i.e. not in the dictionary.
+
+
+wrote following script to sort hawaiian words
+
+#!/bin/bash
+
+grep '<td>.*</td>' | #gets only words
+sed 's/<td><\/td>//g' | #removes empty words
+sed '/^\s*$/d' | #removes blank lines
+sed -n '0~2p' |    #gets only hawaiian words
+sed 's/<[^>]*>//g' | #removes all html tags
+sed 's/^\s*//g;s/\s*$//g' | #removes leading and tailing spaces
+sed 's/ /\n/g' |    #replaces spaces in words with new lines
+sed "s/\`/\'/g" | #replaces ` with '
+sed 's/,//g' | #gets rid of commas
+tr [:upper:] [:lower:] | #converts upper to lower
+tr -cs "pk\'mnwlhaeiou" '[\n*]' | #gets rid of words with non hawaiian chars
+sort -u #sorts and removes duplicates

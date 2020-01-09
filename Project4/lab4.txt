@@ -1,0 +1,86 @@
+
+First I downloaded the buggy coreutils from the website to my local computer
+then used scp to copy it to the linux server.
+
+Then I unzipped it using tar -xvzf coreutils-with-bug.tar.gz to unzip the
+tar file which put it in directory coreutils-with-bug
+
+Then I used ./configure --prefix=(pwd) which took a while running and
+configuring the files.
+
+I then used make which took a while to run then came accross a bug.
+
+Then I used
+wget https://web.cs.ucla.edu/classes/fall18/cs35L/assign/coreutils.diff
+to get the patch file. I removed all ~'s from the file then used command
+patch -p0 < coreutils.diff to patch certain files in coreutils directory
+this command patched 5 files in the coreutils src directory
+
+This was needed because the same function was named two different things
+accross files, this fixed the function names and made the compilation work
+
+then I created 3 files in a temporary directory with one being timestamped
+from 1918. I used the command
+ls -lt --full-time on the 3 files with the patched coreutils ls function
+
+This reproduced the bug and made the 1918 file appear as if it were in the
+future
+
+So I used
+gdb ~/Project4_35L/coreutils-with-bug/src/ls
+which brought me into the debugger
+
+Then I used
+(gdb) info functions
+To get a list of all the functions used in the program
+
+I found that there was a function called compare_mtimes so I decided to
+look at this function. I set a breakpoint using
+(gdb) b compare_mtimes
+and then to run the program used
+(gdb) run -lt
+and found it was using code in the header file
+./coreutils-with-bug/lib/timespec.h to compare the file times so I traced
+through it with
+(gdb) step
+I found that it was subtracting the first and second times storing it in
+a value called diff and returning the value, either positive negative or 0 and
+using that to compare the two times
+
+Because I had 3 files in my temporary directory it called the function twice.
+The first time I checked the diff value using
+(gdb) info locals
+which told me
+diff = -3
+which seemed to be comparing the two non 1918 files
+
+The second function call I used
+(gdb) info locals
+again which told me
+diff = -1139405543
+which looked like overflow had occurred.
+
+In order to fix this I made a copy of timespec.h which i called newtimespec.h
+changed the subtraction to use logical operators >, <, and == to compare these
+values and return 1, 0, or -1 in the appropriate case (code in lab4.diff)
+
+I then used
+diff -u timespec.h newtimespec.h > lab4.diff
+to create the patch file.
+
+To check that it worked I cd'd into the lib folder and used
+patch -p0 < lab4.diff
+which patched the file
+
+Then I used make to rebuild the file
+
+I then went back to my temp directory and tested the new ls functionality
+and the dates displayed in the correct order
+
+I then tried to replicate this on the SEASnet and the 1918 file was
+appearing as if it was modified in 2054. so it still appeared in the right
+order but not the correct date.
+
+
+
+

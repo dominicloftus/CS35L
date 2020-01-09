@@ -1,0 +1,17 @@
+1.) This patch improves the ls function because it now conforms to the
+standard that -a and -A override each other, however it makes performance
+slightly worse because it now needs to check for the overriding of the other
+
+2.) This probably wouldn't be any problems for a company adopting this patch
+because it is fairly intuitive. However if someone was unfamiliar or was
+expecting a different output it could throw them off. Or if they had some kind
+of programmed command that was dependent of the old output of the ls command
+it could mess up an expected output they could have been using for a while
+
+3.) When an empty file is input, the program throws an error that that there
+are 0 lines in the file, and then nothing else will happen in the program
+
+4.) When the script is invoked with python3 it causes an error because the
+syntax in which the IO error message is displayed is incorrect
+
+

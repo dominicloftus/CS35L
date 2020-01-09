@@ -1,0 +1,227 @@
+Dominic Loftus
+204910863
+
+1/
+First I got a clone of the diffutils repository with the command
+git clone ~eggert/src/gnu/diffutils
+which created a directory in my current directory
+
+2/
+Next I used
+git log > ../git-log.txt
+to get the log
+
+3/
+Then I used
+git tag > ../git-tags.txt
+to get the tags
+
+4/
+Next I entered emacs for git-log.txt and used
+C-s maint: quote
+to find correct commit
+
+I was then able to generate a patch for it using command
+git format-patch -1 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f --stdout > \
+../quote-patch.txt
+which placed the patch into the parent directory
+
+5/
+Next I checked out version 3.0 of diffutils using
+git checkout v3.0 -b mybranch
+which switched diffutils to a new v3.0 branch
+
+6/
+Then I applied the patch using command
+patch -p1 < quote-patch.txt
+which began patching. It ran into problems however from 
+
+The following files not existing
+HACKING
+doc/diffutils.texi
+man/help2man
+
+and from Hunk fails at
+README - 9, 60
+README-hacking - 19
+cfg.mk - 29
+src/diff.c - 879, 906, 942
+src/diff3.c - 433
+
+7/
+I then used
+git status
+which gave the following output
+
+On branch mybranch
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   NEWS
+	modified:   README
+	modified:   TODO
+	modified:   doc/diagmeet.note
+	modified:   ms/config.bat
+	modified:   ms/config.site
+	modified:   po/en.po
+	modified:   src/analyze.c
+	modified:   src/cmp.c
+	modified:   src/context.c
+	modified:   src/diff.c
+	modified:   src/diff.h
+	modified:   src/diff3.c
+	modified:   src/dir.c
+	modified:   src/ifdef.c
+	modified:   src/io.c
+	modified:   src/sdiff.c
+	modified:   src/side.c
+	modified:   src/system.h
+	modified:   src/util.c
+	modified:   tests/help-version
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	NEWS.orig
+	README-hacking.orig
+	README-hacking.rej
+	README.orig
+	README.rej
+	cfg.mk.orig
+	cfg.mk.rej
+	ms/config.site.orig
+	quote-patch.txt
+	src/cmp.c.orig
+	src/context.c.orig
+	src/diff.c.orig
+	src/diff.c.rej
+	src/diff.h.orig
+	src/diff3.c.orig
+	src/diff3.c.rej
+	src/dir.c.orig
+	src/sdiff.c.orig
+	src/system.h.orig
+	src/util.c.orig
+	tests/help-version.orig
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+9/
+Next I had to revert all changes to files other than .c
+So I used the commands
+emacs (filename)
+C-x v u
+and answered yes to the prompt given for (filename)s
+NEWS, README, TODO, doc/diagmeet.note, ms/config.bat, ms/config.site,
+po/en.po, src/diff.h, src/system.h, and tests/help-version
+
+to revert all these files
+
+Next was to fix the comments in the .c files. I did this by first opening
+each file in emacs then using the command
+C-x v =
+which opened up a window of applied hunks. I scrolled through the hunks and
+for each one that was a comment I used command
+C-u C-c C-a
+to undo the hunk. If I was unsure if it was a comment I would use
+C-c C-c
+to go to the point in source code and check if it was a comment, then fix it
+
+
+10/
+Next was to fix the .c files that also produced /src/*.c.rej files by going
+through them and changing them by hand. There were 5 hunks needing to be fixed
+in diff.c and 1 in diff3.c
+
+11/
+Next I used
+git status
+to find all untracked files
+
+I then used
+git clean -n
+to do a dry run to make sure the correct files were being removed
+
+Then I used
+git clean -f
+to actually remove the files needed
+
+12/
+Now
+git status
+outputs the following
+
+On branch mybranch
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   src/cmp.c
+	modified:   src/diff.c
+	modified:   src/diff3.c
+	modified:   src/dir.c
+	modified:   src/sdiff.c
+	modified:   src/side.c
+	modified:   src/util.c
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+I then used command
+git diff > quote-3.0-patch.txt
+to create the patch file, it was about 360 lines so it is in the correct range
+
+13/
+Next I ran the command
+./bootstrap
+which took a while to run and added more files to the directory
+
+Then because I was on lnxsrv09 I needed to apply the patch using commands
+wget https://web.cs.ucla.edu/classes/fall18/cs35L/assign/diffutils-gets.diff
+needed to change "old" to "lib" in patch because the was no old directory
+patch -p0 < diffutils-gets.diff
+
+Then I ran
+./configure
+make
+
+After this I was able to test this by using command
+./src/diff . -
+which output
+diff: cannot compare '-' to a directory
+with the correct ' instead of `
+
+I also did
+./src/diff --help
+which also printed the correct quotations
+
+14/
+Next was to perform a sanity check by comparing this to the original version.
+I got the original by using the command
+git clone ~eggert/src/gnu/diffutils diffutils-3.0
+
+I then set it to v3.0 using
+git checkout v3.0 -b mybranch
+
+I also needed to rename the directory I had been working under previously with
+mv diffutils diffutils-3.0-patch
+
+Then I needed to get the source code from both by copying the .c files
+so I made two directories
+mkdir diffutils-3.0-src
+mkdir diffutils-3.0-patch-src
+
+and copied the .c files into each using
+cp ./diffutils-3.0/src/*.c ./diffutils-3.0-src
+cp ./diffutils-3.0-patch/src/*.c ./diffutils-3.0-patch-src
+
+Next was to diff the two directories using command
+./diffutils-3.0-patch/src/diff -pru diffutils-3.0-src diffutils-3.0-patch-src \
+> quote-3.0-test.txt
+
+15/
+Next I compated quote-3.0-test.txt with quote-3.0-patch.txt with command
+diff quote-3.0-patch.txt quote-3.0-test.txt
+which output a lot of text, however when looking through the code, the only
+real differences were in the ` being changed to a '. So the differences
+between them would be innocuous.

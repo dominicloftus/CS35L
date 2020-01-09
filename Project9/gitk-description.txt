@@ -1,0 +1,12 @@
+Dominic Loftus
+204910863
+
+The top window shows the list of commits that has been made to the master
+branch since it was created with a log description on the left, name of
+contributer in the middle and modification date on the right
+
+The bottom left shows the diff file used in the commit and also has the option
+of viewing the old and new versions.
+
+The bottom right shows the files that were changed in the commit and has
+the option to view the entire tree of files contained in the branch.

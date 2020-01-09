@@ -1,0 +1,23 @@
+First I downloaded coreutils to my local machine then used scp to transfer
+coreutils to the linux server
+
+I then used tar -xf coreutils-8.29.tar.xz to unzip the file
+
+Then I used ./configure --prefix=$pwd/coreutilsInstall which took a while to
+configure all the files within the coreutils8.29 I then used make which again
+took a while compiling the files and then make install to install coreutils
+
+I tested the difference between ./src/ls -aA and ./bin/ls -aA and they both
+printed the files in the directory with . and .. directories
+
+I then copied the patch file into a file named patch_file, entered the src
+directory and used the command patch -p1 < patch_file to apply the patch to
+the program. -p1 was necessary to remove the leading '/' to apply the patch
+correctly
+
+I then was able to check to see if the patch works by using the patched src
+file with command ./src/ls -aA and seeing no . or .. directories
+I checked the original unmodified file in a different directory with
+command ./bin/ls -aA which still printed the . and .. directories
+
+Therefore the patch was successful

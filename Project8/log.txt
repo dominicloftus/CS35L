@@ -1,0 +1,87 @@
+Dominic Loftus
+204910863
+Partner: Luke Jung
+
+1/
+First I set up the beaglebone using the steps on piazza
+
+I then logged into it using
+sudo ssh root@192.168.7.2
+and hit enter when prompted for password
+
+I then connected to internet using
+sudo connmanctl
+connmanctl> enable wifi
+connmanctl> scan wifi
+connmanctl> services
+connmanctl> agent on
+connmanctl> connect wifi_(numbers corresponding to CR3760-wifi)_managed_psk
+connmanctl> quit
+which connected me to the internet
+
+I then was able to use
+ifconfig
+and found under wlan0 that my beaglebone ip was 10.97.85.63
+
+I then updated the database of apt-get using
+sudo apt-get update
+and then installed xauth and xvfb using commands to use of X11 forwarding
+sudo apt-get install xauth
+sudo apt-get instal xvfb
+
+I then looked in the ssh_config and sshd_config files and found that in
+ssh_config I needed to change X11Forwarding from no to yes, the other
+relevant files all had the appropriate settings
+
+2/
+My partner then set up the server on his beaglebone
+He started by generating public and private keys using
+ssh-keygen
+saved to the default and entered public key "hello"
+
+He then used the following commands to set up my user
+sudo useradd -d /home/temp -m dominic
+sudo passwd dominic
+cd /home/temp
+sudo mkdir .ssh
+sudo chown -R dominic .ssh
+sudo chmod 700 .ssh
+
+which set up my user and allowed me to ssh into his beaglebone using
+ssh dominic@10.97.85.49
+which was his beaglebone's ip and entering my password
+
+3/
+Currently ssh'ing into my partner's beaglebone requires me to supply
+a password however we now to set up a key based authentication for logging in.
+
+I started by generating my own key with
+ssh-keygen
+and supplying public key "hello"
+
+I then used
+ssh-copy-id -i dominic@10.97.85.49
+and responded to the prompts given and entered my password
+
+I then used
+ssh-add
+and entered my public key to add the private key to the authentication agent
+
+After this I logged in to his beaglebone one more time then after that was
+able to log in without supplying authentication.
+
+4/
+Next was to log into the beaglebone using port forwarding with the -X and -Y
+options using commands
+ssh -X dominic@10.97.85.49
+and
+ssh -Y dominic@10.97.85.49
+
+while in these environments I was able to use the command
+xterm
+to produce a new xterm window
+
+Both behaved similar however it is necessary to be cautious when using -Y
+because it treats the server as a trusted client which could allow the
+client to sniff data from the server or corrupt them in malicious ways.
+
